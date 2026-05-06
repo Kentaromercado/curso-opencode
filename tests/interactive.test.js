@@ -73,6 +73,50 @@ describe('processCommand', () => {
         const result = processCommand('remove-provider openai');
         assert.strictEqual(typeof result, 'string');
     });
+
+    it('should handle new-session command', () => {
+        const result = processCommand('new-session Mi prueba');
+        assert.ok(result.includes('creada'));
+    });
+
+    it('should handle new-session without args', () => {
+        const result = processCommand('new-session');
+        assert.ok(result.includes('creada'));
+    });
+
+    it('should handle session-detail with arg', () => {
+        // First create a session to test with
+        const created = require('../src/session').createSession('Detail test');
+        const result = processCommand(`session-detail ${created.session.id}`);
+        assert.ok(result.includes('Detail test'));
+    });
+
+    it('should handle session-detail without arg', () => {
+        const result = processCommand('session-detail');
+        assert.ok(result.includes('Uso:'));
+    });
+
+    it('should handle delete-session command', () => {
+        const created = require('../src/session').createSession('To delete');
+        const result = processCommand(`delete-session ${created.session.id}`);
+        assert.ok(result.includes('eliminada'));
+    });
+
+    it('should handle delete-session without arg', () => {
+        const result = processCommand('delete-session');
+        assert.ok(result.includes('Uso:'));
+    });
+
+    it('should handle add-message with args', () => {
+        const created = require('../src/session').createSession('Message test');
+        const result = processCommand(`add-message ${created.session.id} user Hola mundo`);
+        assert.ok(result.includes('guardada'));
+    });
+
+    it('should handle add-message without enough args', () => {
+        const result = processCommand('add-message session-id user');
+        assert.ok(result.includes('Uso:'));
+    });
 });
 
 describe('startOpencode', () => {

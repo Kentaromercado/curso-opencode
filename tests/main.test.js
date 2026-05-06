@@ -65,6 +65,13 @@ describe('processCommand', () => {
         assert.ok(typeof r1 === 'string');
         assert.ok(typeof r2 === 'string');
     });
+
+    it('should handle session commands', () => {
+        const r1 = processCommand('sessions');
+        const r2 = processCommand('new-session Test session');
+        assert.ok(typeof r1 === 'string');
+        assert.ok(r2.includes('creada'));
+    });
 });
 
 describe('main', () => {

@@ -35,6 +35,14 @@ function processCommand(command) {
         case '3':
         case 'sessions':
             return showSessions();
+        case 'new-session':
+            return handleNewSession(args);
+        case 'session-detail':
+            return handleSessionDetail(args);
+        case 'delete-session':
+            return handleDeleteSession(args);
+        case 'add-message':
+            return handleAddMessage(args);
         case '4':
         case 'exit':
             return 'exit';
@@ -72,6 +80,40 @@ function handleRemoveProvider(args) {
         return 'Uso: remove-provider <proveedor>\nEjemplo: remove-provider openai';
     }
     return provider.removeProvider(args[0]);
+}
+
+function handleNewSession(args) {
+    const name = args[0] || 'Nueva sesión';
+    const prov = args[1] || 'openai';
+    const model = args[2] || 'gpt-4';
+    const result = session.createSession(name, prov, model);
+    return result.message;
+}
+
+function handleSessionDetail(args) {
+    if (args.length < 1) {
+        return 'Uso: session-detail <sessionId>\nEjemplo: session-detail session-2026-05-06-...';
+    }
+    return session.getSessionDetail(args[0]);
+}
+
+function handleDeleteSession(args) {
+    if (args.length < 1) {
+        return 'Uso: delete-session <sessionId>';
+    }
+    const result = session.deleteSession(args[0]);
+    return result.message;
+}
+
+function handleAddMessage(args) {
+    if (args.length < 3) {
+        return 'Uso: add-message <sessionId> <user|assistant> <mensaje>';
+    }
+    const sessionId = args[0];
+    const role = args[1];
+    const content = args.slice(2).join(' ');
+    const result = session.addMessage(sessionId, role, content);
+    return result.message;
 }
 
 function startOpencode() {
@@ -114,7 +156,13 @@ function showHelp() {
         '  add-provider <p> <m> [k]  - Agregar proveedor (modelo, clave opcional)',
         '  remove-provider <p>   - Eliminar proveedor configurado',
         '  apikeys, keys         - Ver estado de claves API',
-        '  provider-detail <p>   - Ver detalle de un proveedor'
+        '  provider-detail <p>   - Ver detalle de un proveedor',
+        '',
+        'Gestión de sesiones:',
+        '  new-session [nombre] [prov] [modelo]  - Crear nueva sesión',
+        '  session-detail <id>   - Ver detalle de una sesión',
+        '  delete-session <id>   - Eliminar una sesión',
+        '  add-message <id> <rol> <msg>  - Agregar mensaje a sesión'
     ].join('\n');
 }
 

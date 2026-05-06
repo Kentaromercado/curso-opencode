@@ -38,6 +38,41 @@ describe('processCommand', () => {
     it('should handle 4 as exit', () => {
         assert.strictEqual(processCommand('4'), 'exit');
     });
+
+    it('should handle providers command', () => {
+        const result = processCommand('providers');
+        assert.strictEqual(typeof result, 'string');
+    });
+
+    it('should handle apikeys command', () => {
+        const result = processCommand('apikeys');
+        assert.ok(result.includes('OpenAI'));
+    });
+
+    it('should handle provider-detail command with arg', () => {
+        const result = processCommand('provider-detail openai');
+        assert.ok(result.includes('OpenAI'));
+    });
+
+    it('should handle provider-detail without arg', () => {
+        const result = processCommand('provider-detail');
+        assert.ok(result.includes('Uso:'));
+    });
+
+    it('should handle add-provider with args', () => {
+        const result = processCommand('add-provider openai gpt-4');
+        assert.ok(result.includes('agregado'));
+    });
+
+    it('should handle add-provider without enough args', () => {
+        const result = processCommand('add-provider openai');
+        assert.ok(result.includes('Uso:'));
+    });
+
+    it('should handle remove-provider command', () => {
+        const result = processCommand('remove-provider openai');
+        assert.strictEqual(typeof result, 'string');
+    });
 });
 
 describe('startOpencode', () => {

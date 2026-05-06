@@ -58,6 +58,13 @@ describe('processCommand', () => {
         const result = processCommand('help');
         assert.ok(result.includes('Ayuda'));
     });
+
+    it('should handle provider commands', () => {
+        const r1 = processCommand('providers');
+        const r2 = processCommand('keys');
+        assert.ok(typeof r1 === 'string');
+        assert.ok(typeof r2 === 'string');
+    });
 });
 
 describe('main', () => {

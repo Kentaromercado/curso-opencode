@@ -21,7 +21,9 @@ function showBanner() {
 }
 
 function processCommand(command) {
-    const cmd = command.trim().toLowerCase();
+    const parts = command.trim().split(/\s+/);
+    const cmd = parts[0].toLowerCase();
+    const args = parts.slice(1);
 
     switch (cmd) {
         case '1':
@@ -39,9 +41,37 @@ function processCommand(command) {
         case 'help':
         case '?':
             return showHelp();
+        case 'providers':
+        case 'p':
+            return provider.formatConfiguredProviders();
+        case 'add-provider':
+            return handleAddProvider(args);
+        case 'remove-provider':
+            return handleRemoveProvider(args);
+        case 'apikeys':
+        case 'keys':
+            return provider.formatApiKeyStatus();
+        case 'provider-detail':
+        case 'pd':
+            return args.length > 0 ? provider.formatProviderDetail(args[0]) : 'Uso: provider-detail <proveedor>';
         default:
             return `Comando no reconocido: "${command}". Escriba 'help' para ver opciones.`;
     }
+}
+
+function handleAddProvider(args) {
+    if (args.length < 2) {
+        return 'Uso: add-provider <proveedor> <modelo> [apiKey]\nEjemplo: add-provider openai gpt-4 sk-...';
+    }
+    const [name, model, apiKey] = args;
+    return provider.addProvider(name, model, apiKey);
+}
+
+function handleRemoveProvider(args) {
+    if (args.length < 1) {
+        return 'Uso: remove-provider <proveedor>\nEjemplo: remove-provider openai';
+    }
+    return provider.removeProvider(args[0]);
 }
 
 function startOpencode() {
@@ -51,12 +81,15 @@ function startOpencode() {
 function showProviderConfig() {
     const providers = provider.formatProviders();
     const current = provider.getCurrentConfig();
+    const configured = provider.formatConfiguredProviders();
+    const keys = provider.formatApiKeyStatus();
+    
     let result = providers;
+    result += '\n\n' + configured;
+    result += '\n\n' + keys;
     
     if (current) {
-        result += `\n\nProveedor actual: ${current.provider}/${current.model}`;
-    } else {
-        result += '\n\nNo hay proveedor configurado.';
+        result += `\n\nProveedor activo: ${current.provider}/${current.model}`;
     }
     
     return result;
@@ -70,11 +103,18 @@ function showSessions() {
 function showHelp() {
     return [
         'Ayuda - Comandos disponibles:',
-        '  1, start     - Iniciar Opencode TUI',
-        '  2, config    - Ver configuración de proveedores',
-        '  3, sessions  - Listar sesiones guardadas',
-        '  4, exit      - Salir',
-        '  help, ?      - Mostrar esta ayuda'
+        '  1, start              - Iniciar Opencode TUI',
+        '  2, config             - Ver configuración de proveedores',
+        '  3, sessions           - Listar sesiones guardadas',
+        '  4, exit               - Salir',
+        '  help, ?               - Mostrar esta ayuda',
+        '',
+        'Gestión de proveedores:',
+        '  providers, p          - Listar proveedores configurados',
+        '  add-provider <p> <m> [k]  - Agregar proveedor (modelo, clave opcional)',
+        '  remove-provider <p>   - Eliminar proveedor configurado',
+        '  apikeys, keys         - Ver estado de claves API',
+        '  provider-detail <p>   - Ver detalle de un proveedor'
     ].join('\n');
 }
 
